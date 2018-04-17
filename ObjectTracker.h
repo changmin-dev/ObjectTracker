@@ -13,7 +13,8 @@
 
 using namespace cv;
 using namespace std;
-#define TPL_DIR "markerTpl2.png"
+
+#define TPL_DIR "/Users/changmin/Projects/object_tracker/markerTpl.png"
 
 //callback함수 맴버가 콜백으로 바로 들어가지 않으므로 이 함수를 거쳐서 맴버를 호출하게한다.
 void onMouse(int event, int x, int y, int, void* obj);

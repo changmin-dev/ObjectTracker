@@ -3,6 +3,12 @@
 int main(){
     VideoCapture cap;
     cap.open(0);
+
+    if(cap.isOpened() == false){
+        cout << "can not open cam" << endl;
+        return -1;
+    }
+
     Mat frame;
     objectTracker obT;
     obT.initWindow();

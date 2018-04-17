@@ -1,4 +1,5 @@
 #include "ObjectTracker.h"
+#include <cstdlib>
 
 objectTracker::objectTracker(){
     isSelectObject = false;	//처음에는 꺼진 상태
@@ -46,7 +47,7 @@ void objectTracker::onMouseEvent(int event, int x, int y){
 
     if (isSelectObject){
         selection.x = MIN(x, origin.x);         selection.y = MIN(y, origin.y);
-        selection.width = std::abs(x - origin.x);         selection.height = std::abs(y - origin.y);
+        selection.width = std::abs((double)(x - origin.x));         selection.height = std::abs((double)(y - origin.y));
         selection &= Rect(0, 0, image.cols, image.rows);		// 원본 영상의 크기와의 & 연산을 통해 선택된 크기가 원본 영상을 넘지 않게 한다.  마우스가 화면밖일때 대처
     }
 
@@ -90,12 +91,14 @@ void objectTracker::getTemplateHist(){//Camshift는 히스토그램에 대한 ba
 void objectTracker::getTemplateHistTpl(){
     Mat tpl = imread(TPL_DIR);
     if(tpl.empty()){
-        printf("Template is not found!");
+        cout << "Template is not found!" << endl;
+        std::terminate();
     }
+
     Mat tpl_hue;
     Mat tpl_hsv;
     Mat tpl_mask;
-    if (tpl.empty()) exit(0);
+
     cvtColor(tpl, tpl_hsv, CV_BGR2HSV);
 
     inRange(tpl_hsv, Scalar(0, smin, MIN(vmin, vmax)), Scalar(180, 256, MAX(vmin, vmax)), tpl_mask);
@@ -106,6 +109,7 @@ void objectTracker::getTemplateHistTpl(){
     calcHist(&tpl_hue, 1, 0, tpl_mask, hist, 1, &hsize, &phranges);
     normalize(hist, hist, 0, 255, CV_MINMAX);
 }
+
 void objectTracker::trackObject(){//문제 발생
     cvtColor(image, hsv, CV_BGR2HSV);
     getTemplateHist();
@@ -196,6 +200,8 @@ void objectTracker::trackCamShift(){
             }
 
         }//end camshift
+
+        //윈도우가 너무 작아지면 다시 만들어 준다.(크래쉬 방지)
         if (trackWindow.area() <= 1)
         {
             int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5) / 6;
